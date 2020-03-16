@@ -3,7 +3,10 @@ var express=require("express"),
     passport=require("passport"),
     bodyParser=require("body-parser"),
     LocalStrategy=require("passport-local"),
+    bcrypt=require("bcrypt"),
     app=express();
+////local db
+    const users=[]
 
 app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({extended:true}));
@@ -37,8 +40,19 @@ app.post("/login",function(req,res){
 app.get("/register",function(req,res){
     res.render("register");
 });
-app.post("/register",function(req,res){
-    res.send("register route");
+app.post("/register",async function(req,res){
+    try{
+        const hashedPassword=await bcrypt.hash(req.body.password,10);
+        users.push({
+            id:Date.now().toString(),
+            username:req.body.username,
+            password:hashedPassword
+        })
+        res.redirect("/login");
+    }catch{
+        res.redirect("/register");
+    }
+    console.log(users);
 });
 
 
