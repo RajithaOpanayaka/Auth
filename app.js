@@ -10,8 +10,7 @@ var express=require("express"),
 const initializePassport=require("./passport-config");
 initializePassport(
     passport,
-    username=>users.find(user=>user.username===username),
-    id=>users.find(user=>user.id===id)
+    username=>users.find(user=>user.username===username)
 ); 
 ////local db
     const users=[]
@@ -27,6 +26,13 @@ app.use(require("express-session")({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(methodOverride('_method'))
+
+passport.serializeUser((user,done)=>done(null,user.id));
+passport.deserializeUser((id,done)=>{
+    connection.query("select * from user where id = "+ id, function (err, rows){
+        done(err, rows[0]);
+    });
+});
 
 
 ////ROUTES
@@ -55,10 +61,12 @@ app.get("/register",checkNotAuthenticated,function(req,res){
 app.post("/register",checkNotAuthenticated,async function(req,res){
     try{
         const hashedPassword=await bcrypt.hash(req.body.password,10);
-        users.push({
-            id:Date.now().toString(),
-            username:req.body.username,
-            password:hashedPassword
+        var sql="INSERT INTO user (username,password) VALUES (?,?)";
+        var values=[req.body.username,hashedPassword];
+        connection.query(sql,values,function(err,result){
+            if(err){
+                console.log(err);
+            }
         })
         res.redirect("/login");
     }catch{
