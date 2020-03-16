@@ -3,13 +3,20 @@ var express=require("express"),
     passport=require("passport"),
     bodyParser=require("body-parser"),
     LocalStrategy=require("passport-local"),
+    flash=require("express-flash"),
     bcrypt=require("bcrypt"),
-    app=express();
+    app=express();   
+const initializePassport=requrie("./passport-config");
+initializePassport(
+    passport,
+    username=>users.find(user=>user.username===username)
+); 
 ////local db
     const users=[]
 
 app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(flash());
 app.use(require("express-session")({
     secret:"auth using passport",
     resave:false,
@@ -32,9 +39,11 @@ app.get("/login",function(req,res){
     res.render("login");
 });
 
-app.post("/login",function(req,res){
-    res.send("log in route");
-});
+app.post("/login",passport.authenticate('local',{
+    successRedirect:'secret',
+    failureRedirect:'/login',
+    failureFlash:true
+}));
 
 ///register
 app.get("/register",function(req,res){
