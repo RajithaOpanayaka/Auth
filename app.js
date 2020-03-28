@@ -10,7 +10,17 @@ var express=require("express"),
 const initializePassport=require("./passport-config");
 initializePassport(
     passport,
-    username=>users.find(user=>user.username===username)
+    username=>{
+        return new Promise((resolve, reject) => {
+            connection.query(
+              "SELECT * FROM user WHERE username = ?",
+              [username],
+              (err, result) => {
+                return err ? reject(err) : resolve(result[0]);
+              }
+            );
+          });
+    }
 ); 
 ////local db
     const users=[]
