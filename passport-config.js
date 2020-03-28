@@ -10,7 +10,7 @@ function initialize(passport){
                     if(err){
                         return err;
                     }
-                    user=rows[0];//await getUserByUsername(username);////add await
+                    user=rows[0];
                     if(user==null){
                         return done(null,false,{message:'no user with that username'})
                     }
@@ -18,7 +18,7 @@ function initialize(passport){
 
                 if(user!=null){
                     try{
-                       // console.log(user.username);
+                     
                         if(bcrypt.compare(password,user.password)){
                             return done(null,user)
                         }else{
