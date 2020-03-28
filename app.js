@@ -9,8 +9,12 @@ var express=require("express"),
     app=express();   
 const initializePassport=require("./passport-config");
 initializePassport(
-    passport,
-    username=>users.find(user=>user.username===username)
+    passport
+    // function(username){
+    //     connection.query("select * from user where username = ?", [username], function (err, rows) {
+    //         return rows[0];
+    //     });
+    // }
 ); 
 ////local db
     const users=[]
@@ -29,9 +33,11 @@ app.use(methodOverride('_method'))
 
 passport.serializeUser((user,done)=>done(null,user.id));
 passport.deserializeUser((id,done)=>{
+    
     connection.query("select * from user where id = "+ id, function (err, rows){
         done(err, rows[0]);
     });
+    
 });
 
 
@@ -72,7 +78,7 @@ app.post("/register",checkNotAuthenticated,async function(req,res){
     }catch{
         res.redirect("/register");
     }
-    console.log(users);
+    
 });
 
 ///log out
